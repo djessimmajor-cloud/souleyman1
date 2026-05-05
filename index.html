@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Level Up — Par Djessim le Major</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060612;
+      --bg2: #0d0d24;
+      --card: #111130;
+      --border: #2a2a5a;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --accent3: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --glow: rgba(124,58,237,0.4);
+      --glow2: rgba(6,182,212,0.3);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    #bg-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
+    }
+
+    .cursor {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent2);
+      position: fixed; pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s;
+      mix-blend-mode: screen;
+    }
+    .cursor-trail {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 1px solid var(--accent);
+      position: fixed; pointer-events: none;
+      z-index: 9998;
+      transition: all 0.15s ease;
+      mix-blend-mode: screen;
+    }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(6,6,18,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.1rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.85rem; font-weight: 500;
+      letter-spacing: 1px; text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--accent2); }
+
+    .nav-badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white; padding: 0.3rem 1rem;
+      border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+    }
+
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+    }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.4);
+      border-radius: 30px; padding: 0.4rem 1.2rem;
+      font-size: 0.8rem; color: var(--accent2);
+      margin-bottom: 2rem; animation: fadeDown 0.8s ease;
+    }
+    .hero-tag span { color: var(--accent3); font-weight: 700; }
+
+    .hero h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2.5rem, 8vw, 6rem);
+      font-weight: 900; line-height: 1;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.8s ease 0.2s both;
+    }
+    .hero h1 .line1 {
+      background: linear-gradient(90deg, #fff, var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero h1 .line2 {
+      background: linear-gradient(90deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      display: block; font-size: 0.55em; margin-top: 0.2em;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem; color: var(--muted);
+      max-width: 600px; line-height: 1.7;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.8s ease 0.4s both;
+    }
+    .hero-sub strong { color: var(--accent2); }
+
+    .crew {
+      display: flex; gap: 0.5rem; margin-bottom: 3rem;
+      animation: fadeUp 0.8s ease 0.5s both;
+    }
+    .crew-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700;
+      border: 2px solid var(--border);
+      position: relative; transition: transform 0.3s; cursor: pointer;
+    }
+    .crew-avatar:hover { transform: translateY(-5px) scale(1.1); }
+    .crew-avatar:nth-child(1) { background: linear-gradient(135deg, #7c3aed, #4f46e5); }
+    .crew-avatar:nth-child(2) { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+    .crew-avatar:nth-child(3) { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .crew-avatar:nth-child(4) { background: linear-gradient(135deg, #10b981, #059669); }
+    .crew-avatar:nth-child(5) { background: linear-gradient(135deg, #ef4444, #dc2626); border-color: var(--accent3); }
+    .crew-avatar .tooltip {
+      position: absolute; bottom: -30px;
+      background: var(--card); border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem; border-radius: 6px;
+      font-size: 0.65rem; white-space: nowrap;
+      opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    }
+    .crew-avatar:hover .tooltip { opacity: 1; }
+
+    .btn-group {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.8s ease 0.6s both;
+    }
+    .btn {
+      padding: 0.85rem 2rem; border-radius: 12px;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: all 0.3s;
+      letter-spacing: 0.5px; border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: white; box-shadow: 0 0 30px var(--glow);
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 50px var(--glow); }
+    .btn-secondary {
+      background: transparent; color: var(--accent2);
+      border: 1px solid var(--accent2);
+    }
+    .btn-secondary:hover { background: rgba(6,182,212,0.1); transform: translateY(-3px); }
+
+    .scroll-hint {
+      position: absolute; bottom: 2rem;
+      left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0.5rem;
+      color: var(--muted); font-size: 0.75rem;
+      animation: bounce 2s infinite;
+    }
+    .scroll-hint::after {
+      content: ''; width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--accent2), transparent);
+    }
+
+    section { position: relative; z-index: 1; padding: 5rem 2rem; }
+
+    .section-header { text-align: center; margin-bottom: 4rem; }
+    .section-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700;
+      background: linear-gradient(90deg, #fff, var(--muted));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; max-width: 1200px; margin: 0 auto;
+    }
+    .level-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      position: relative; overflow: hidden;
+    }
+    .level-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(124,58,237,0.05));
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .level-card:hover::before { opacity: 1; }
+    .level-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--accent);
+      box-shadow: 0 20px 60px var(--glow), 0 0 0 1px rgba(124,58,237,0.3);
+    }
+
+    .level-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 3rem; font-weight: 900; line-height: 1; margin-bottom: 0.5rem;
+    }
+    .level-card:nth-child(1) .level-num { color: var(--accent2); }
+    .level-card:nth-child(2) .level-num { color: var(--accent); }
+    .level-card:nth-child(3) .level-num { color: var(--accent3); }
+    .level-card:nth-child(4) .level-num { color: #10b981; }
+
+    .level-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .level-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
+    .level-subjects { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .subject-pill {
+      background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+      color: var(--accent2); padding: 0.25rem 0.75rem;
+      border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+    }
+    .level-progress { margin-top: 1.5rem; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .level-progress-bar { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+    #lesson-panel { max-width: 1000px; margin: 0 auto; display: none; }
+    #lesson-panel.visible { display: block; }
+
+    .lesson-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+    .back-btn {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: 0.5rem 1rem;
+      border-radius: 10px; cursor: pointer;
+      font-family: inherit; font-size: 0.85rem; transition: all 0.2s;
+    }
+    .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .subjects-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .subject-tab {
+      padding: 0.5rem 1.2rem; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); cursor: pointer;
+      font-size: 0.85rem; font-family: inherit; transition: all 0.2s;
+    }
+    .subject-tab.active, .subject-tab:hover {
+      background: var(--accent); border-color: var(--accent); color: white;
+    }
+
+    .lesson-content {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2.5rem;
+    }
+    .lesson-content h2 {
+      font-family: 'Orbitron', monospace; font-size: 1.5rem; margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .lesson-content .lesson-intro {
+      color: var(--muted); font-size: 0.9rem;
+      margin-bottom: 2rem; padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .lesson-block { margin-bottom: 2rem; }
+    .lesson-block h3 {
+      font-size: 1.05rem; font-weight: 700; color: var(--accent3);
+      margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .lesson-block h3::before { content: '▸'; color: var(--accent2); }
+    .lesson-block p { color: var(--muted); line-height: 1.8; font-size: 0.92rem; }
+
+    .formula-box {
+      background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.3);
+      border-radius: 12px; padding: 1.2rem 1.5rem; margin: 1rem 0;
+      font-family: 'Courier New', monospace; font-size: 1rem;
+      color: var(--accent2); text-align: center;
+    }
+    .example-box {
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3);
+      border-left: 3px solid var(--accent3);
+      border-radius: 0 12px 12px 0; padding: 1rem 1.5rem; margin: 1rem 0;
+    }
+    .example-box strong {
+      color: var(--accent3); display: block; margin-bottom: 0.4rem;
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .tip-box {
+      background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 12px; padding: 1rem 1.5rem; margin: 1rem 0;
+      display: flex; gap: 0.8rem;
+    }
+    .tip-box .tip-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .tip-box p { color: var(--text); font-size: 0.88rem; }
+
+    .quiz-section { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+    .quiz-section h3 { font-family: 'Orbitron', monospace; font-size: 1rem; color: var(--accent3); margin-bottom: 1.5rem; }
+    .quiz-q {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem;
+    }
+    .quiz-q p { margin-bottom: 0.8rem; font-size: 0.92rem; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .quiz-opt {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;
+      font-size: 0.85rem; font-family: inherit; color: var(--text); transition: all 0.2s;
+    }
+    .quiz-opt:hover { border-color: var(--accent); color: var(--accent); }
+    .quiz-opt.correct { border-color: #10b981; background: rgba(16,185,129,0.1); color: #10b981; }
+    .quiz-opt.wrong { border-color: #ef4444; background: rgba(239,68,68,0.1); color: #ef4444; }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem; max-width: 900px; margin: 0 auto;
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem; text-align: center; transition: all 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+    .stat-num {
+      font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label { color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; }
+
+    footer {
+      position: relative; z-index: 1; text-align: center;
+      padding: 2rem; border-top: 1px solid var(--border);
+      color: var(--muted); font-size: 0.8rem;
+    }
+    footer strong { color: var(--accent2); }
+
+    #easter-egg-modal {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.95); backdrop-filter: blur(20px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    #easter-egg-modal.show { display: flex; }
+
+    .egg-content {
+      background: linear-gradient(135deg, #0d0d24, #1a0a2e);
+      border: 1px solid rgba(124,58,237,0.5);
+      border-radius: 24px; padding: 3rem; max-width: 680px;
+      width: 100%; position: relative; overflow: hidden;
+      animation: eggPop 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .egg-content::before {
+      content: ''; position: absolute; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);
+      animation: rotate 10s linear infinite;
+    }
+    .egg-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--muted); width: 32px; height: 32px;
+      border-radius: 8px; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .egg-close:hover { color: white; border-color: var(--accent); }
+
+    .egg-title {
+      font-family: 'Orbitron', monospace; font-size: 1.5rem; font-weight: 900;
+      background: linear-gradient(90deg, var(--accent3), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem; position: relative;
+    }
+    .egg-subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; position: relative; }
+
+    .arg-list { display: flex; flex-direction: column; gap: 0.8rem; position: relative; }
+    .arg-item {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.2rem;
+      display: flex; gap: 1rem; align-items: flex-start; transition: all 0.3s;
+    }
+    .arg-item:hover {
+      border-color: var(--accent); background: rgba(124,58,237,0.08);
+      transform: translateX(5px);
+    }
+    .arg-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .arg-text strong { display: block; font-size: 0.9rem; color: var(--text); margin-bottom: 0.2rem; }
+    .arg-text span { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+    .egg-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .confetti-piece {
+      position: absolute; width: 8px; height: 8px;
+      border-radius: 2px; animation: confettiFall linear infinite;
+    }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(10px); } }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes eggPop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    @keyframes confettiFall { from { top: -20px; opacity: 1; } to { top: 110%; opacity: 0; } }
+
+    .konami-hint {
+      position: fixed; bottom: 1rem; right: 1rem;
+      font-size: 0.65rem; color: rgba(255,255,255,0.05);
+      letter-spacing: 2px; z-index: 10; user-select: none; transition: color 0.3s;
+    }
+    .konami-hint:hover { color: rgba(124,58,237,0.3); }
+
+    .glitch { position: relative; }
+    .glitch::before, .glitch::after {
+      content: attr(data-text); position: absolute; top: 0; left: 0;
+      background: linear-gradient(90deg, #fff, var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .glitch::before { animation: glitch1 3s infinite; clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%); }
+    .glitch::after { animation: glitch2 3s infinite; clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%); }
+    @keyframes glitch1 {
+      0%, 95%, 100% { transform: none; opacity: 0; }
+      96% { transform: translate(-2px, 2px); opacity: 0.8; }
+      97% { transform: translate(2px, -2px); opacity: 0.8; }
+      98% { transform: translate(-1px, 1px); opacity: 0.8; }
+    }
+    @keyframes glitch2 {
+      0%, 92%, 100% { transform: none; opacity: 0; }
+      93% { transform: translate(2px, 2px); opacity: 0.8; }
+      94% { transform: translate(-2px, -1px); opacity: 0.8; }
+      95% { transform: none; opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursor-trail"></div>
+
+<nav>
+  <div class="nav-logo">LEVEL·UP</div>
+  <ul class="nav-links">
+    <li><a href="#niveaux">Niveaux</a></li>
+    <li><a href="#stats">Stats</a></li>
+  </ul>
+  <div class="nav-badge">🏆 MAJOR DE 6ÈME</div>
+</nav>
+
+<section class="hero" id="home">
+  <div class="hero-tag">🚀 Créé par <span>Djessim</span>, Major de 6ème — Pour la squad</div>
+  <h1>
+    <span class="line1 glitch" data-text="LEVEL UP">LEVEL UP</span>
+    <span class="line2">COLLÈGE EDITION</span>
+  </h1>
+  <p class="hero-sub">
+    Le site éducatif ultime pour <strong>Mouhamed, Souleyman, Imran &amp; Djalil</strong>.<br>
+    Prends de l'avance sur la 5ème, 4ème, 3ème et même la Seconde. 💪
+  </p>
+  <div class="crew">
+    <div class="crew-avatar" id="djessim-avatar">👑<div class="tooltip">Djessim — Major</div></div>
+    <div class="crew-avatar">M<div class="tooltip">Mouhamed</div></div>
+    <div class="crew-avatar">S<div class="tooltip">Souleyman</div></div>
+    <div class="crew-avatar">I<div class="tooltip">Imran</div></div>
+    <div class="crew-avatar">D<div class="tooltip">Djalil</div></div>
+  </div>
+  <div class="btn-group">
+    <a href="#niveaux" class="btn btn-primary">Commencer à apprendre →</a>
+    <a href="#stats" class="btn btn-secondary">Voir les stats</a>
+  </div>
+  <div class="scroll-hint">Scroll</div>
+</section>
+
+<section id="niveaux">
+  <div class="section-header">
+    <div class="section-tag">📚 Programmes</div>
+    <h2 class="section-title">Choisis ton niveau</h2>
+  </div>
+  <div class="levels-grid" id="levels-grid">
+    <div class="level-card" onclick="openLevel('5eme')">
+      <div class="level-num">5ᵉ</div>
+      <div class="level-name">Cinquième</div>
+      <div class="level-desc">Consolider les bases et découvrir de nouveaux chapitres.</div>
+      <div class="level-subjects">
+        <span class="subject-pill">Maths</span><span class="subject-pill">Français</span>
+        <span class="subject-pill">SVT</span><span class="subject-pill">Histoire</span><span class="subject-pill">Physique</span>
+      </div>
+      <div class="level-progress"><div class="level-progress-bar" style="width:0%;background:linear-gradient(90deg,#06b6d4,#0891b2)"></div></div>
+    </div>
+    <div class="level-card" onclick="openLevel('4eme')">
+      <div class="level-num">4ᵉ</div>
+      <div class="level-name">Quatrième</div>
+      <div class="level-desc">Les maths deviennent sérieuses, la physique aussi.</div>
+      <div class="level-subjects">
+        <span class="subject-pill">Algèbre</span><span class="subject-pill">Géométrie</span>
+        <span class="subject-pill">Chimie</span><span class="subject-pill">Géographie</span><span class="subject-pill">Anglais</span>
+      </div>
+      <div class="level-progress"><div class="level-progress-bar" style="width:0%;background:linear-gradient(90deg,#7c3aed,#4f46e5)"></div></div>
+    </div>
+    <div class="level-card" onclick="openLevel('3eme')">
+      <div class="level-num">3ᵉ</div>
+      <div class="level-name">Troisième</div>
+      <div class="level-desc">Le brevet approche. Voici tout ce qu'il faut maîtriser.</div>
+      <div class="level-subjects">
+        <span class="subject-pill">Brevet</span><span class="subject-pill">Fonctions</span>
+        <span class="subject-pill">Théorème</span><span class="subject-pill">Atome</span><span class="subject-pill">WW2</span>
+      </div>
+      <div class="level-progress"><div class="level-progress-bar" style="width:0%;background:linear-gradient(90deg,#f59e0b,#d97706)"></div></div>
+    </div>
+    <div class="level-card" onclick="openLevel('2nde')">
+      <div class="level-num">2de</div>
+      <div class="level-name">Seconde</div>
+      <div class="level-desc">Un aperçu du lycée — pour les plus motivés de la squad !</div>
+      <div class="level-subjects">
+        <span class="subject-pill">Fonctions</span><span class="subject-pill">Vecteurs</span>
+        <span class="subject-pill">SNT</span><span class="subject-pill">SES</span>
+      </div>
+      <div class="level-progress"><div class="level-progress-bar" style="width:0%;background:linear-gradient(90deg,#10b981,#059669)"></div></div>
+    </div>
+  </div>
+  <div id="lesson-panel">
+    <div class="lesson-header">
+      <button class="back-btn" onclick="closeLevel()">← Retour</button>
+      <h2 id="panel-title" style="font-family:Orbitron;font-size:1.3rem;background:linear-gradient(90deg,var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></h2>
+    </div>
+    <div class="subjects-nav" id="subjects-nav"></div>
+    <div class="lesson-content" id="lesson-content"></div>
+  </div>
+</section>
+
+<section id="stats" style="background:linear-gradient(180deg,transparent,rgba(124,58,237,0.05),transparent);">
+  <div class="section-header">
+    <div class="section-tag">🔥 La squad</div>
+    <h2 class="section-title">Qui va cartonner ?</h2>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Niveaux disponibles</div></div>
+    <div class="stat-card"><div class="stat-num">20+</div><div class="stat-label">Leçons détaillées</div></div>
+    <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Membres de la squad</div></div>
+    <div class="stat-card"><div class="stat-num">∞</div><div class="stat-label">Motivation disponible</div></div>
+  </div>
+</section>
+
+<footer>
+  <p>Créé avec 💜 par <strong>Djessim</strong> — Major de 6ème<br>
+  Pour Mouhamed, Souleyman, Imran &amp; Djalil • 2025</p>
+</footer>
+
+<div id="easter-egg-modal">
+  <div class="egg-content">
+    <div class="egg-confetti" id="confetti"></div>
+    <button class="egg-close" onclick="closeEgg()">✕</button>
+    <div class="egg-title">🎉 T'AS TROUVÉ LE SECRET !</div>
+    <div class="egg-subtitle">Montre ça à tes parents — ils vont comprendre pourquoi t'as besoin d'un ordi portable 💻</div>
+    <div class="arg-list">
+      <div class="arg-item"><div class="arg-icon">📚</div><div class="arg-text"><strong>Meilleurs résultats scolaires</strong><span>Les élèves avec un ordinateur à la maison ont en moyenne +2 points de moyenne. Accès aux cours en ligne, aux exercices, aux dictionnaires — tout le temps.</span></div></div>
+      <div class="arg-item"><div class="arg-icon">🧠</div><div class="arg-text"><strong>Apprendre à coder = compétence du futur</strong><span>Les développeurs gagnent en moyenne 45 000€/an dès le début. Ton enfant peut apprendre à coder dès maintenant — comme Djessim qui a créé ce site en 6ème !</span></div></div>
+      <div class="arg-item"><div class="arg-icon">🎯</div><div class="arg-text"><strong>Autonomie et responsabilité</strong><span>Avoir son propre outil de travail développe la discipline. Moins de temps à attendre l'accès à un appareil partagé, plus de temps pour réviser.</span></div></div>
+      <div class="arg-item"><div class="arg-icon">💰</div><div class="arg-text"><strong>Un investissement rentable</strong><span>Un ordinateur portable d'entrée de gamme coûte 300–400€ et dure 5 ans. C'est moins de 7€/semaine pour l'avenir de votre enfant.</span></div></div>
+      <div class="arg-item"><div class="arg-icon">🔐</div><div class="arg-text"><strong>Contrôle parental facile</strong><span>Windows et Mac permettent de limiter les horaires, les sites et les apps. Vous restez en contrôle total.</span></div></div>
+      <div class="arg-item"><div class="arg-icon">🚀</div><div class="arg-text"><strong>Preuve : ce site existe</strong><span>Ce site a été créé par un élève de 6ème grâce à un ordinateur. Imaginez ce que votre enfant pourrait construire avec le sien.</span></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="konami-hint">↑↑↓↓←→←→</div>
+
+<script>
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursor-trail');
+let mx = 0, my = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx - 6 + 'px'; cursor.style.top = my - 6 + 'px';
+  setTimeout(() => { trail.style.left = mx - 15 + 'px'; trail.style.top = my - 15 + 'px'; }, 80);
+});
+
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initStars(); }
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 120; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5, a: Math.random(), speed: 0.003+Math.random()*0.005, drift: (Math.random()-0.5)*0.2 });
+}
+function drawStars() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s => {
+    s.a += s.speed; s.x += s.drift;
+    if (s.x < 0) s.x = canvas.width; if (s.x > canvas.width) s.x = 0;
+    const alpha = (Math.sin(s.a)*0.5+0.5)*0.6+0.1;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle = `rgba(180,160,255,${alpha})`; ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+window.addEventListener('resize', resize); resize(); drawStars();
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = [...document.querySelectorAll('.level-card')].indexOf(e.target);
+      const w = [75,60,45,30];
+      if (idx >= 0) e.target.querySelector('.level-progress-bar').style.width = w[idx] + '%';
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.level-card').forEach(c => observer.observe(c));
+
+const lessons = {
+  '5eme': { title: '5ᵉ — Cinquième', subjects: {
+    'Maths': { title: 'Mathématiques — 5ème', intro: 'En 5ème, tu vas travailler sur les fractions, les relatifs, et commencer la géométrie.', blocks: [
+      { h: 'Les nombres relatifs', p: 'Un nombre relatif est un nombre avec un signe + ou −. Sur une droite graduée, les positifs sont à droite de 0 et les négatifs à gauche.', formula: '(-3) + (+5) = +2   |   (-4) × (-2) = +8', example: { title: 'Exemple concret', text: 'La température est de −5°C. Elle monte de 8°C. Nouvelle temp : −5 + 8 = 3°C ✓' }, tip: '💡 Astuce Djessim : Deux signes pareils → positif. Deux signes différents → négatif !' },
+      { h: 'Les fractions', p: 'Additionner des fractions : même dénominateur d\'abord. Multiplier : numérateur × numérateur, dénominateur × dénominateur.', formula: '3/4 + 1/4 = 4/4 = 1   |   2/3 × 3/5 = 6/15 = 2/5', example: { title: 'Exercice', text: 'Calcule 1/2 + 3/4 → 2/4 + 3/4 = 5/4 = 1,25' }, tip: '💡 Pour comparer des fractions, réduis-les au même dénominateur !' },
+      { h: 'Proportionnalité', p: 'Un tableau est proportionnel si le rapport entre les lignes est toujours le même. Base des pourcentages et des échelles.', formula: 'si a/b = c/d alors a×d = b×c (règle de 3)', tip: '💡 En 5ème, la règle de 3 est ta meilleure amie pour les problèmes du quotidien !' }
+    ], quiz: [{ q: 'Combien fait (−3) + (−5) ?', opts: ['-8','+8','-2','+2'], correct: 0 }, { q: 'Que vaut 2/3 × 3/4 ?', opts: ['6/7','1/2','5/12','6/12'], correct: 1 }] },
+    'Français': { title: 'Français — 5ème', intro: 'Grammaire, conjugaison, figures de style... Le français en 5ème exige de la rigueur.', blocks: [
+      { h: 'Les temps du passé', p: 'L\'imparfait décrit une action qui dure dans le passé. Le passé simple décrit une action courte et terminée.', formula: 'IMPARFAIT : je marchais / PASSÉ SIMPLE : je marchai', example: { title: 'Distinction clé', text: 'Il lisait (imparfait = habitude) VS Il lut (passé simple = action précise)' }, tip: '💡 Dans un récit, imparfait = décor, passé simple = action. C\'est la règle !' },
+      { h: 'Figures de style', p: 'La comparaison utilise "comme", "tel". La métaphore compare sans outil. La personnification donne des qualités humaines à un objet.', example: { title: 'Exemples', text: '"Il est courageux comme un lion" = comparaison. "C\'est un lion" = métaphore.' }, tip: '💡 Apprends 5 figures : comparaison, métaphore, personnification, hyperbole, antithèse.' }
+    ], quiz: [{ q: '"Il courait comme le vent" — c\'est quelle figure ?', opts: ['Métaphore','Comparaison','Hyperbole','Personnification'], correct: 1 }] },
+    'SVT': { title: 'SVT — 5ème', intro: 'La nutrition, la digestion, la reproduction des plantes — voici les thèmes clés.', blocks: [
+      { h: 'La digestion', p: 'La digestion transforme les aliments en nutriments absorbables. Elle commence dans la bouche et se termine dans l\'intestin grêle.', formula: 'Bouche → Œsophage → Estomac → Intestin grêle → Côlon', example: { title: 'À savoir', text: 'L\'estomac produit des sucs gastriques pour dégrader les protéines. Durée totale : ~20h.' }, tip: '💡 Visualise le chemin des aliments de la bouche jusqu\'à la sortie !' }
+    ], quiz: [{ q: 'Où commence la digestion ?', opts: ['Estomac','Intestin','Bouche','Œsophage'], correct: 2 }] },
+    'Histoire': { title: 'Histoire — 5ème', intro: 'Le Moyen-Âge, les empires, les grandes découvertes.', blocks: [
+      { h: 'Le Moyen-Âge', p: 'Le Moyen-Âge va de 476 (chute de Rome) à 1492 (découverte de l\'Amérique). Période féodale, croisades et cathédrales.', formula: '476 → 1492 : environ 1000 ans', tip: '💡 Repère : 1492 = Colomb découvre l\'Amérique = fin du Moyen-Âge !' }
+    ], quiz: [{ q: 'En quelle année s\'achève le Moyen-Âge ?', opts: ['1492','1789','476','1066'], correct: 0 }] },
+    'Physique': { title: 'Physique-Chimie — 5ème', intro: 'La lumière, les états de la matière, les mélanges.', blocks: [
+      { h: 'La lumière', p: 'La lumière se propage en ligne droite. Elle peut être réfléchie (miroir) ou réfractée (eau). Vitesse : 300 000 km/s.', formula: 'c = 3 × 10⁸ m/s', tip: '💡 L\'ombre existe car la lumière voyage en ligne droite — si quelque chose bloque, ça crée une ombre !' }
+    ], quiz: [{ q: 'La vitesse de la lumière est environ...', opts: ['300 km/s','3000 km/s','300 000 km/s','3 000 000 km/s'], correct: 2 }] }
+  }},
+  '4eme': { title: '4ᵉ — Quatrième', subjects: {
+    'Algèbre': { title: 'Mathématiques — Algèbre 4ème', intro: 'En 4ème, les équations et la factorisation arrivent. C\'est là que ça devient fun !', blocks: [
+      { h: 'Développement et factorisation', p: 'Développer = enlever les parenthèses. Factoriser = remettre des parenthèses. Ces deux opérations sont inverses.', formula: 'a(b+c) = ab + ac   |   (a+b)(a-b) = a² - b²', example: { title: 'Identités remarquables', text: '(a+b)² = a² + 2ab + b²\n(a−b)² = a² − 2ab + b²\n(a+b)(a−b) = a² − b²' }, tip: '💡 Les 3 identités remarquables = à mémoriser par cœur. Elles reviennent jusqu\'au bac !' },
+      { h: 'Équations du 1er degré', p: 'Résoudre une équation = trouver la valeur de x. On isole x en faisant les mêmes opérations des deux côtés.', formula: '3x + 7 = 16 → 3x = 9 → x = 3', tip: '💡 Vérifie toujours ta réponse en remplaçant x dans l\'équation de départ !' },
+      { h: 'Puissances', p: 'a^n = a × a × ... × a (n fois). Puissances négatives : a^(-n) = 1/a^n. La puissance 0 vaut toujours 1.', formula: 'a^m × a^n = a^(m+n)   |   (a^m)^n = a^(m×n)', tip: '💡 10^3 = 1000, 10^6 = 1 million. Pratique pour la notation scientifique !' }
+    ], quiz: [{ q: 'Développe (x + 3)² =', opts: ['x² + 9','x² + 3x + 9','x² + 6x + 9','x² + 6x + 3'], correct: 2 }, { q: 'Résous 2x - 4 = 10 → x =', opts: ['3','7','5','6'], correct: 1 }] },
+    'Géométrie': { title: 'Mathématiques — Géométrie 4ème', intro: 'Pythagore et Thalès : les deux grands théorèmes de 4ème !', blocks: [
+      { h: 'Théorème de Pythagore', p: 'Dans un triangle rectangle, le carré de l\'hypoténuse = somme des carrés des deux autres côtés.', formula: 'a² + b² = c²   (c = hypoténuse)', example: { title: 'Exemple', text: 'a=3, b=4 → c = √(9+16) = √25 = 5 ✓ (triangle 3-4-5 classique)' }, tip: '💡 Le triangle 3-4-5 et 5-12-13 tombent souvent en contrôle !' },
+      { h: 'Théorème de Thalès', p: 'Si deux droites parallèles coupent deux droites sécantes, les rapports des longueurs sont égaux.', formula: 'MA/MB = MC/MD = AC/BD', tip: '💡 Thalès = proportionnalité dans les triangles. Cherche toujours des droites parallèles !' }
+    ], quiz: [{ q: 'Dans un triangle rect., a=6 et b=8. c =', opts: ['10','12','14','√48'], correct: 0 }] },
+    'Chimie': { title: 'Physique-Chimie — 4ème', intro: 'Les atomes, les molécules, et les réactions chimiques.', blocks: [
+      { h: 'Atomes et molécules', p: 'Un atome est la plus petite partie d\'un élément. Une molécule = ensemble d\'atomes liés. H₂O = 2H + 1O.', formula: 'H₂O : eau   |   CO₂ : dioxyde de carbone   |   O₂ : oxygène', tip: '💡 L\'indice en bas = nombre d\'atomes. H₂ = 2 atomes d\'hydrogène.' }
+    ], quiz: [{ q: 'H₂O contient combien d\'atomes d\'hydrogène ?', opts: ['1','2','3','0'], correct: 1 }] },
+    'Géographie': { title: 'Géographie — 4ème', intro: 'La mondialisation, les inégalités dans le monde.', blocks: [
+      { h: 'La mondialisation', p: 'La mondialisation = l\'intensification des échanges mondiaux : économiques, culturels, humains.', formula: 'Nord riche ↔ échanges ↔ Sud en développement', tip: '💡 Cite Nike (produit en Asie, vendu en Europe) ou Netflix (USA → monde entier).' }
+    ], quiz: [{ q: 'La mondialisation désigne...', opts: ['La politique mondiale','L\'intensification des échanges mondiaux','La géographie physique','Les migrations'], correct: 1 }] },
+    'Anglais': { title: 'Anglais — 4ème', intro: 'Grammaire anglaise essentielle pour briller en 4ème.', blocks: [
+      { h: 'Present Perfect vs Prétérit', p: 'Le Prétérit décrit une action passée à un moment précis. Le Present Perfect décrit une action passée avec un résultat visible maintenant.', formula: 'I went to Paris last year. (Prétérit)\nI have been to Paris. (Present Perfect)', tip: '💡 Date précise (yesterday, last week) → Prétérit. Sinon → Present Perfect.' }
+    ], quiz: [{ q: '"I ___ already seen this film." — le bon mot ?', opts: ['have','had','has','am'], correct: 0 }] }
+  }},
+  '3eme': { title: '3ᵉ — Troisième', subjects: {
+    'Brevet': { title: 'Préparer le Brevet — Méthode', intro: 'Le brevet des collèges se prépare dès maintenant. Voici la méthode ultime de Djessim.', blocks: [
+      { h: 'Les épreuves du brevet', p: 'Français (3h), Maths (2h), Histoire-Géo-EMC (2h), Sciences (2h), et l\'épreuve orale.', formula: 'Note finale = contrôle continu (400 pts) + épreuves finales (300 pts)', tip: '💡 Le contrôle continu compte 400/700 points ! Tes notes de 3ème comptent vraiment.' },
+      { h: 'Méthode de révision', p: 'La technique Pomodoro : 25 min de travail, 5 min de pause. Fiches, mind maps, sujets corrigés.', example: { title: 'Planning type', text: 'Lundi: Maths / Mardi: Français / Mercredi: Histoire / Jeudi: Sciences / Vendredi: tout réviser' }, tip: '💡 30 min par soir, c\'est largement suffisant si c\'est régulier !' }
+    ], quiz: [{ q: 'Le brevet compte combien de points au total ?', opts: ['500','700','1000','600'], correct: 1 }] },
+    'Fonctions': { title: 'Mathématiques — Fonctions', intro: 'Les fonctions en 3ème : la base pour comprendre le lycée.', blocks: [
+      { h: 'Notion de fonction', p: 'Une fonction associe à chaque valeur x une valeur y = f(x). Représentation par tableau ou graphique.', formula: 'f(x) = 2x + 3 → f(2) = 7   |   f(0) = 3', tip: '💡 f(x) = 2x + 3 : droite. Pente = 2, ordonnée à l\'origine = 3.' },
+      { h: 'Lecture graphique', p: 'Image de x = valeur de y correspondante. Antécédent de y = valeur de x correspondante.', example: { title: 'Sur un graphique', text: 'Si le point (3, 6) est sur la courbe de f, alors f(3) = 6 et 3 est un antécédent de 6.' }, tip: '💡 Image = résultat. Antécédent = cause. Simple !' }
+    ], quiz: [{ q: 'f(x) = 3x − 1. Que vaut f(4) ?', opts: ['11','12','13','10'], correct: 0 }] },
+    'Théorème': { title: 'Mathématiques — Théorèmes avancés', intro: 'Réciproque de Pythagore, Thalès avancé, statistiques.', blocks: [
+      { h: 'Réciproque du théorème de Pythagore', p: 'Si dans un triangle a² + b² = c², alors le triangle est rectangle en C.', formula: 'Si a² + b² = c² ALORS angle droit', tip: '💡 La réciproque sert à prouver. Pythagore sert à calculer. Ne confonds pas !' },
+      { h: 'Statistiques', p: 'Moyenne = somme / nombre. Médiane = valeur du milieu. Étendue = max − min.', formula: 'Moyenne : x̄ = Σxi / n', tip: '💡 La médiane n\'est pas affectée par les valeurs extrêmes !' }
+    ], quiz: [{ q: 'Étendue de : 2, 5, 8, 3, 10 ?', opts: ['8','6','10','5'], correct: 0 }] },
+    'Atome': { title: 'Physique-Chimie — L\'atome', intro: 'Structure de l\'atome, tableau périodique, ions.', blocks: [
+      { h: 'Structure de l\'atome', p: 'Un atome = noyau (protons + neutrons) + électrons en orbite. Z = nombre de protons. A = protons + neutrons.', formula: 'Z = protons = électrons (atome neutre)\nA = protons + neutrons', tip: '💡 Ion = atome qui a gagné ou perdu des électrons.' }
+    ], quiz: [{ q: 'Un atome a 6 protons. Son Z est...', opts: ['12','6','3','18'], correct: 1 }] },
+    'WW2': { title: 'Histoire — La 2ème Guerre Mondiale', intro: 'Dates clés, acteurs, bilan de la seconde guerre mondiale.', blocks: [
+      { h: 'Chronologie essentielle', p: 'Sept 1939 : invasion Pologne. Juin 1940 : armistice France. Déc 1941 : USA. Juin 1944 : D-Day. Mai 1945 : capitulation Allemagne.', formula: '1939 → 1945 : 6 ans de guerre mondiale', tip: '💡 6 juin 1944 = D-Day = débarquement en Normandie. Incontournable au brevet !' }
+    ], quiz: [{ q: 'Le D-Day (débarquement de Normandie), c\'est le...', opts: ['6 juin 1944','8 mai 1945','1er sept 1939','11 nov 1918'], correct: 0 }] }
+  }},
+  '2nde': { title: '2de — Seconde', subjects: {
+    'Fonctions': { title: 'Mathématiques — Fonctions Lycée', intro: 'Les fonctions de Seconde : polynômes, variations, courbes.', blocks: [
+      { h: 'Fonctions de référence', p: 'f(x)=x (linéaire), f(x)=x² (carré), f(x)=√x (racine), f(x)=1/x (inverse). Chacune a son graphique.', formula: 'f(x) = x² → minimum en 0, croissante sur [0;+∞)', tip: '💡 En Seconde, trace toujours le tableau de variations avant le graphique !' },
+      { h: 'Tableau de variations', p: 'Montre où la fonction croît (↗) ou décroît (↘). Chercher f\'(x) = 0 pour les extremums.', example: { title: 'f(x) = x² − 4x + 3', text: 'Minimum en x = 2, f(2) = −1. Décroissante sur ]−∞; 2], croissante sur [2; +∞[' }, tip: '💡 La dérivée arrive en Terminale mais en Seconde on utilise déjà les résultats.' }
+    ], quiz: [{ q: 'f(x) = x². En x = 3, f(3) vaut...', opts: ['6','9','3','√3'], correct: 1 }] },
+    'Vecteurs': { title: 'Mathématiques — Vecteurs', intro: 'Les vecteurs en Seconde : une nouvelle façon de penser la géométrie.', blocks: [
+      { h: 'Notion de vecteur', p: 'Un vecteur a une direction, un sens et une norme (longueur). Deux vecteurs égaux ont même direction, sens et norme.', formula: 'AB⃗ + BC⃗ = AC⃗ (relation de Chasles)', tip: '💡 Chasles = les lettres du milieu s\'annulent. AB + BC = AC : B disparaît !' }
+    ], quiz: [{ q: 'AB⃗ + BC⃗ = ?', opts: ['AC⃗','BA⃗','CB⃗','CA⃗'], correct: 0 }] },
+    'SNT': { title: 'SNT — Sciences du Numérique', intro: 'Internet, données, IA, cybersécurité. La matière du futur !', blocks: [
+      { h: 'Internet et réseaux', p: 'Internet = réseau mondial. Les données transitent par protocoles (TCP/IP). Chaque machine a une adresse IP.', formula: 'IP = adresse unique (ex: 192.168.1.1)\nHTTPS = protocole sécurisé du Web', tip: '💡 Web ≠ Internet. Internet = infrastructure. Web = applications dessus.' },
+      { h: 'Données et algorithmes', p: 'Un algorithme = suite d\'instructions pour résoudre un problème. Les données personnelles sont précieuses.', example: { title: 'Algorithme simple', text: '1. Prendre un nombre\n2. Le multiplier par 2\n3. Afficher le résultat' }, tip: '💡 Djessim a utilisé des algorithmes pour créer ce site. Tout le code = algorithmes !' }
+    ], quiz: [{ q: 'IP signifie...', opts: ['Internet Protocol','Information Page','Input Program','Infinite Processing'], correct: 0 }] },
+    'SES': { title: 'SES — Sciences Économiques et Sociales', intro: 'L\'économie, la sociologie — une intro au monde adulte.', blocks: [
+      { h: 'Notions économiques de base', p: 'Offre et demande : si demande augmente et offre fixe, prix monte. Le marché = lieu de rencontre entre offre et demande.', formula: 'Demande ↑ + Offre stable → Prix ↑', tip: '💡 Exemple : consoles en rupture de stock → prix explosent sur eBay. C\'est l\'offre/demande !' }
+    ], quiz: [{ q: 'Si la demande augmente et l\'offre est fixe, le prix...', opts: ['Baisse','Monte','Reste stable','Disparaît'], correct: 1 }] }
+  }}
+};
+
+let currentLevel = null;
+
+function openLevel(level) {
+  currentLevel = level;
+  const data = lessons[level];
+  document.getElementById('levels-grid').style.display = 'none';
+  const panel = document.getElementById('lesson-panel');
+  panel.classList.add('visible');
+  document.getElementById('panel-title').textContent = data.title;
+  const nav = document.getElementById('subjects-nav');
+  nav.innerHTML = '';
+  const subjects = Object.keys(data.subjects);
+  subjects.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'subject-tab' + (i === 0 ? ' active' : '');
+    btn.textContent = s;
+    btn.onclick = () => { nav.querySelectorAll('.subject-tab').forEach(b => b.classList.remove('active')); btn.classList.add('active'); loadLesson(level, s); };
+    nav.appendChild(btn);
+  });
+  loadLesson(level, subjects[0]);
+  panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeLevel() {
+  document.getElementById('levels-grid').style.display = '';
+  document.getElementById('lesson-panel').classList.remove('visible');
+  document.getElementById('niveaux').scrollIntoView({ behavior: 'smooth' });
+}
+
+function loadLesson(level, subject) {
+  const lesson = lessons[level].subjects[subject];
+  const content = document.getElementById('lesson-content');
+  let html = `<h2>${lesson.title}</h2><p class="lesson-intro">${lesson.intro}</p>`;
+  lesson.blocks.forEach(b => {
+    html += `<div class="lesson-block"><h3>${b.h}</h3><p>${b.p}</p>`;
+    if (b.formula) html += `<div class="formula-box">${b.formula}</div>`;
+    if (b.example) html += `<div class="example-box"><strong>${b.example.title}</strong>${b.example.text}</div>`;
+    if (b.tip) html += `<div class="tip-box"><div class="tip-icon">🎯</div><p>${b.tip}</p></div>`;
+    html += `</div>`;
+  });
+  if (lesson.quiz && lesson.quiz.length > 0) {
+    html += `<div class="quiz-section"><h3>⚡ TEST RAPIDE — Vérifie tes connaissances</h3>`;
+    lesson.quiz.forEach(q => {
+      html += `<div class="quiz-q"><p>${q.q}</p><div class="quiz-options">`;
+      q.opts.forEach((opt, oi) => { html += `<button class="quiz-opt" onclick="checkAnswer(this, ${oi === q.correct})">${opt}</button>`; });
+      html += `</div></div>`;
+    });
+    html += `</div>`;
+  }
+  content.innerHTML = html;
+}
+
+function checkAnswer(btn, correct) {
+  btn.parentElement.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  btn.textContent += correct ? ' ✓' : ' ✗';
+}
+
+const konami = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIdx = 0, secretClicks = 0;
+
+document.addEventListener('keydown', e => {
+  if (e.key === konami[konamiIdx]) { konamiIdx++; if (konamiIdx === konami.length) { triggerEasterEgg(); konamiIdx = 0; } }
+  else konamiIdx = 0;
+});
+
+document.getElementById('djessim-avatar').addEventListener('click', () => {
+  secretClicks++;
+  if (secretClicks >= 5) { triggerEasterEgg(); secretClicks = 0; }
+});
+
+function triggerEasterEgg() {
+  document.getElementById('easter-egg-modal').classList.add('show');
+  spawnConfetti();
+}
+function closeEgg() { document.getElementById('easter-egg-modal').classList.remove('show'); }
+function spawnConfetti() {
+  const container = document.getElementById('confetti');
+  container.innerHTML = '';
+  const colors = ['#7c3aed','#06b6d4','#f59e0b','#10b981','#ef4444','#fff'];
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random()*100+'%';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration = (2+Math.random()*3)+'s';
+    p.style.animationDelay = Math.random()*2+'s';
+    p.style.transform = `rotate(${Math.random()*360}deg)`;
+    container.appendChild(p);
+  }
+}
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const bars = document.querySelectorAll('.level-progress-bar');
+    ['75%','60%','45%','30%'].forEach((w, i) => { if (bars[i]) bars[i].style.width = w; });
+  }, 800);
+});
+</script>
+</body>
+</html>
