@@ -16,6 +16,11 @@
 
 <nav>
   <div class="nav-logo">LEVEL·UP</div>
+  <div class="nav-links">
+    <a class="nav-btn" href="#niveaux">📚 Leçons</a>
+    <a class="nav-btn" href="#exercices">✏️ Exercices</a>
+    <a class="nav-btn" href="#quiz-section">⚡ Quiz</a>
+  </div>
   <div class="nav-badge">🏆 MAJOR DE 6ÈME</div>
 </nav>
 
@@ -93,6 +98,88 @@
         <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
         <div id="lesson-main" class="lesson-main"></div>
       </main>
+    </div>
+  </div>
+</section>
+
+<section id="exercices">
+  <div class="section-header">
+    <div class="section-tag">✏️ Exercices</div>
+    <h2 class="section-title">Entraîne-toi</h2>
+  </div>
+  <div class="exo-grid">
+    <div class="exo-card" onclick="openLevel('5eme');document.getElementById('niveaux').scrollIntoView({behavior:'smooth'})">
+      <div class="exo-num" style="color:var(--accent2)">5ᵉ</div>
+      <div class="exo-title">Exercices 5ème</div>
+      <div class="exo-list">
+        <div class="exo-item">➜ Calcul sur les relatifs</div>
+        <div class="exo-item">➜ Fractions et proportionnalité</div>
+        <div class="exo-item">➜ Figures de style</div>
+      </div>
+      <div class="exo-cta">Accéder →</div>
+    </div>
+    <div class="exo-card" onclick="openLevel('4eme');document.getElementById('niveaux').scrollIntoView({behavior:'smooth'})">
+      <div class="exo-num" style="color:var(--accent)">4ᵉ</div>
+      <div class="exo-title">Exercices 4ème</div>
+      <div class="exo-list">
+        <div class="exo-item">➜ Identités remarquables</div>
+        <div class="exo-item">➜ Pythagore + équations</div>
+        <div class="exo-item">➜ Present Perfect</div>
+      </div>
+      <div class="exo-cta">Accéder →</div>
+    </div>
+    <div class="exo-card" onclick="openLevel('3eme');document.getElementById('niveaux').scrollIntoView({behavior:'smooth'})">
+      <div class="exo-num" style="color:var(--accent3)">3ᵉ</div>
+      <div class="exo-title">Exercices 3ème</div>
+      <div class="exo-list">
+        <div class="exo-item">➜ Fonctions et graphiques</div>
+        <div class="exo-item">➜ Trigonométrie</div>
+        <div class="exo-item">➜ Brevet méthode</div>
+      </div>
+      <div class="exo-cta">Accéder →</div>
+    </div>
+    <div class="exo-card" onclick="openLevel('2nde');document.getElementById('niveaux').scrollIntoView({behavior:'smooth'})">
+      <div class="exo-num" style="color:#10b981">2de</div>
+      <div class="exo-title">Exercices 2nde</div>
+      <div class="exo-list">
+        <div class="exo-item">➜ Vecteurs et inéquations</div>
+        <div class="exo-item">➜ If clauses type 1 &amp; 2</div>
+        <div class="exo-item">➜ Humanisme, Romantisme</div>
+      </div>
+      <div class="exo-cta">Accéder →</div>
+    </div>
+  </div>
+</section>
+
+<section id="quiz-section">
+  <div class="section-header">
+    <div class="section-tag">⚡ Quiz</div>
+    <h2 class="section-title">Teste tes connaissances</h2>
+  </div>
+  <div class="quiz-hub">
+    <div class="qhub-card" onclick="openLevel('5eme');document.getElementById('niveaux').scrollIntoView({behavior:'smooth'})">
+      <div class="qhub-icon">🔵</div>
+      <div class="qhub-level">5ème</div>
+      <div class="qhub-info">16 questions · Maths / Anglais / Français</div>
+      <div class="qhub-btn">Lancer ⚡</div>
+    </div>
+    <div class="qhub-card" onclick="openLevel('4eme');document.getElementById('niveaux').scrollIntoView({behavior:'smooth'})">
+      <div class="qhub-icon">🟣</div>
+      <div class="qhub-level">4ème</div>
+      <div class="qhub-info">16 questions · Maths / Anglais / Français</div>
+      <div class="qhub-btn">Lancer ⚡</div>
+    </div>
+    <div class="qhub-card" onclick="openLevel('3eme');document.getElementById('niveaux').scrollIntoView({behavior:'smooth'})">
+      <div class="qhub-icon">🟡</div>
+      <div class="qhub-level">3ème</div>
+      <div class="qhub-info">16 questions · Maths / Anglais / Français</div>
+      <div class="qhub-btn">Lancer ⚡</div>
+    </div>
+    <div class="qhub-card" onclick="openLevel('2nde');document.getElementById('niveaux').scrollIntoView({behavior:'smooth'})">
+      <div class="qhub-icon">🟢</div>
+      <div class="qhub-level">2nde</div>
+      <div class="qhub-info">16 questions · Maths / Anglais / Français</div>
+      <div class="qhub-btn">Lancer ⚡</div>
     </div>
   </div>
 </section>
