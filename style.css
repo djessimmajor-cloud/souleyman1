@@ -13,6 +13,7 @@ nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-i
 .nav-links { display:flex; gap:0.5rem; }
 .nav-btn { padding:0.4rem 1rem; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--muted); font-size:0.78rem; font-weight:600; text-decoration:none; transition:all 0.2s; white-space:nowrap; }
 .nav-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(124,58,237,0.1); }
+.nav-btn.active-page { border-color:var(--accent); color:var(--accent); background:rgba(124,58,237,0.15); }
 @media(max-width:600px) { .nav-links { gap:0.3rem; } .nav-btn { padding:0.3rem 0.6rem; font-size:0.7rem; } .nav-badge { display:none; } }
 .nav-logo { font-family:'Orbitron',monospace; font-size:1.1rem; font-weight:900; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:2px; }
 .nav-badge { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; padding:0.3rem 1rem; border-radius:20px; font-size:0.75rem; font-weight:700; }

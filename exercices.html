@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Exercices — Level Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=4">
+  <style>
+    .exo-page { max-width:900px; margin:0 auto; padding-top:6rem; }
+    .level-tabs { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .ltab { padding:0.5rem 1.4rem; border-radius:10px; border:1px solid var(--border); background:var(--card); color:var(--muted); cursor:pointer; font-size:0.85rem; font-family:inherit; font-weight:600; transition:all 0.2s; }
+    .ltab.active { background:var(--accent); border-color:var(--accent); color:white; }
+    .subject-section { margin-bottom:2.5rem; }
+    .subject-title { font-family:'Orbitron',monospace; font-size:0.85rem; color:var(--accent2); letter-spacing:2px; margin-bottom:1rem; text-transform:uppercase; }
+    .exo-block { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1rem; }
+    .exo-block-title { font-weight:700; font-size:0.95rem; margin-bottom:0.8rem; color:var(--text); }
+    .exo-enonce { font-size:0.88rem; color:var(--muted); line-height:1.8; white-space:pre-line; margin-bottom:1rem; }
+    .show-corr-btn { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; border:none; padding:0.45rem 1.2rem; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:700; font-family:inherit; transition:all 0.2s; }
+    .show-corr-btn:hover { opacity:0.85; }
+    .correction { display:none; margin-top:1rem; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:1rem; font-size:0.85rem; color:#10b981; white-space:pre-line; }
+    .correction.visible { display:block; }
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <a class="nav-logo" href="index.html">LEVEL·UP</a>
+  <div class="nav-links">
+    <a class="nav-btn" href="index.html#niveaux">📚 Leçons</a>
+    <a class="nav-btn active-page" href="exercices.html">✏️ Exercices</a>
+    <a class="nav-btn" href="quiz.html">⚡ Quiz</a>
+  </div>
+  <div class="nav-badge">🏆 MAJOR DE 6ÈME</div>
+</nav>
+
+<section class="exo-page" id="exo-page">
+  <div class="section-header">
+    <div class="section-tag">✏️ Exercices</div>
+    <h2 class="section-title">Entraîne-toi</h2>
+  </div>
+  <div class="level-tabs">
+    <button class="ltab active" onclick="showLevel('5eme',this)">5ème</button>
+    <button class="ltab" onclick="showLevel('4eme',this)">4ème</button>
+    <button class="ltab" onclick="showLevel('3eme',this)">3ème</button>
+    <button class="ltab" onclick="showLevel('2nde',this)">2nde</button>
+  </div>
+  <div id="exo-content"></div>
+</section>
+
+<script>
+const canvas=document.getElementById('bg-canvas');const ctx=canvas.getContext('2d');let stars=[];
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;stars=[];for(let i=0;i<120;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5,a:Math.random(),speed:0.003+Math.random()*0.005,drift:(Math.random()-.5)*.2});}
+function drawStars(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.a+=s.speed;s.x+=s.drift;if(s.x<0)s.x=canvas.width;if(s.x>canvas.width)s.x=0;const al=(Math.sin(s.a)*.5+.5)*.6+.1;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(180,160,255,${al})`;ctx.fill();});requestAnimationFrame(drawStars);}
+window.addEventListener('resize',resize);resize();drawStars();
+
+const exercices = {
+  '5eme': {
+    'Maths': [
+      { title: 'Calcul sur les relatifs', enonce: `1. Calcule : (−7) + (+4) = ?\n2. Calcule : (−3) × (−5) = ?\n3. Calcule : (+6) − (−2) = ?\n4. Calcule : (−12) ÷ (+3) = ?`, correction: `1. (−7) + (+4) = −3\n2. (−3) × (−5) = +15  (deux signes − → résultat +)\n3. (+6) − (−2) = +6 + 2 = +8  (soustraire un négatif = ajouter)\n4. (−12) ÷ (+3) = −4  (signes différents → résultat −)` },
+      { title: 'Fractions', enonce: `1. Calcule : 1/3 + 1/6\n2. Calcule : 3/4 × 2/5\n3. Simplifie : 12/18\n4. Calcule : 2/3 ÷ 4/9`, correction: `1. 1/3 + 1/6 = 2/6 + 1/6 = 3/6 = 1/2\n2. 3/4 × 2/5 = 6/20 = 3/10\n3. 12/18 → PGCD(12,18)=6 → 12/18 = 2/3\n4. 2/3 ÷ 4/9 = 2/3 × 9/4 = 18/12 = 3/2` },
+      { title: 'Proportionnalité', enonce: `1. 4 stylos coûtent 6€. Combien coûtent 10 stylos ?\n2. Une voiture roule à 90 km/h. Quelle distance en 2h30 ?`, correction: `1. Prix d'un stylo = 6÷4 = 1,50€\n   10 stylos = 10 × 1,50 = 15€\n2. 2h30 = 2,5h\n   Distance = 90 × 2,5 = 225 km` }
+    ],
+    'Anglais': [
+      { title: 'Present Simple / Continuous', enonce: `Mets le verbe entre parenthèses au bon temps :\n1. She always (drink) coffee in the morning.\n2. Look! He (run) in the park.\n3. They (not/like) horror movies.\n4. What ___ you (do) right now?`, correction: `1. She always drinks coffee. (habitude → Present Simple, + S)\n2. He is running in the park. (action en cours → Present Continuous)\n3. They don't like horror movies. (négatif → don't + base)\n4. What are you doing right now? (en cours → Present Continuous)` },
+      { title: 'Past Simple', enonce: `Mets au Past Simple :\n1. I (go) to school yesterday.\n2. She (not/see) the film.\n3. They (play) football last Sunday.\n4. He (have) a sandwich for lunch.`, correction: `1. I went to school yesterday. (irrégulier)\n2. She didn't see the film. (négatif : didn't + base)\n3. They played football last Sunday. (régulier : +ed)\n4. He had a sandwich for lunch. (irrégulier)` }
+    ],
+    'Français': [
+      { title: 'Imparfait et passé simple', enonce: `Conjugue les verbes au temps demandé :\n1. (marcher - imparfait - ils)\n2. (finir - passé simple - il)\n3. (avoir - imparfait - nous)\n4. (venir - passé simple - elle)`, correction: `1. ils marchaient\n2. il finit\n3. nous avions\n4. elle vint` },
+      { title: 'Figures de style', enonce: `Identifie la figure de style :\n1. "Il est fort comme un bœuf."\n2. "Le vent hurlait dans la nuit."\n3. "Je suis mort de fatigue."\n4. "C'est un lion, ce guerrier !"`, correction: `1. Comparaison (outil "comme")\n2. Personnification (le vent agit comme un humain)\n3. Hyperbole (exagération volontaire)\n4. Métaphore (comparaison sans outil)` }
+    ]
+  },
+  '4eme': {
+    'Maths': [
+      { title: 'Identités remarquables', enonce: `Développe :\n1. (x + 4)²\n2. (2x − 3)²\n3. (x + 5)(x − 5)\n4. (3x + 1)²`, correction: `1. x² + 8x + 16\n2. 4x² − 12x + 9\n3. x² − 25  (différence de carrés)\n4. 9x² + 6x + 1` },
+      { title: 'Équations du 1er degré', enonce: `Résous :\n1. 3x + 6 = 0\n2. 2x − 4 = 8\n3. 5(x + 2) = 20\n4. −3x + 9 = 0`, correction: `1. 3x = −6 → x = −2\n2. 2x = 12 → x = 6\n3. 5x + 10 = 20 → 5x = 10 → x = 2\n4. −3x = −9 → x = 3` },
+      { title: 'Théorème de Pythagore', enonce: `1. Triangle rectangle, côtés 5 et 12. Calcule l'hypoténuse.\n2. Hypoténuse = 17, un côté = 8. Calcule l'autre côté.\n3. Les longueurs 7, 24, 25 forment-elles un triangle rectangle ?`, correction: `1. c² = 5² + 12² = 25 + 144 = 169 → c = 13\n2. a² = 17² − 8² = 289 − 64 = 225 → a = 15\n3. 7² + 24² = 49 + 576 = 625 = 25² ✓ → Oui, rectangle !` }
+    ],
+    'Anglais': [
+      { title: 'Present Perfect', enonce: `Mets au Present Perfect :\n1. I (never/eat) sushi.\n2. She (just/finish) her homework.\n3. They (already/see) that film.\n4. Have you ever (be) to London?`, correction: `1. I have never eaten sushi.\n2. She has just finished her homework.\n3. They have already seen that film.\n4. Have you ever been to London?` },
+      { title: 'Will vs Going to', enonce: `Choisis will ou going to :\n1. "Il y a des nuages noirs." → It ___ rain.\n2. Tu réponds au téléphone spontanément → I ___ answer.\n3. Tu as réservé un billet → I ___ travel to Paris.\n4. Prédiction générale → Robots ___ replace many jobs.`, correction: `1. is going to rain (preuve visible : nuages)\n2. will answer (décision spontanée)\n3. am going to travel (plan décidé à l'avance)\n4. will replace (prédiction/opinion)` }
+    ],
+    'Français': [
+      { title: 'Subjonctif présent', enonce: `Conjugue au subjonctif présent :\n1. Il faut que tu (venir).\n2. Je veux que vous (partir).\n3. Bien que nous (avoir) le temps.\n4. Il faut qu'il (être) là.`, correction: `1. Il faut que tu viennes.\n2. Je veux que vous partiez.\n3. Bien que nous ayons le temps.\n4. Il faut qu'il soit là.` },
+      { title: 'COD et COI', enonce: `Identifie et nomme le complément souligné :\n1. Elle mange [une pomme].\n2. Il téléphone [à sa mère].\n3. Nous regardons [le film].\n4. Elle pense [à ses vacances].`, correction: `1. une pomme → COD (mange quoi ?)\n2. à sa mère → COI (téléphone à qui ?)\n3. le film → COD (regardons quoi ?)\n4. à ses vacances → COI (pense à quoi ?)` }
+    ]
+  },
+  '3eme': {
+    'Maths': [
+      { title: 'Fonctions', enonce: `f(x) = 3x − 2\n1. Calcule f(0), f(3), f(−1).\n2. Trouve l'antécédent de 7.\n3. La courbe de f coupe l'axe des y en quel point ?`, correction: `1. f(0) = −2 | f(3) = 7 | f(−1) = −5\n2. 3x − 2 = 7 → 3x = 9 → x = 3\n3. Elle coupe en y = f(0) = −2 → point (0; −2)` },
+      { title: 'Trigonométrie', enonce: `Triangle rectangle ABC, angle droit en B.\n1. AB = 6, AC = 10. Calcule sin(A).\n2. Angle A = 35°, AC = 12. Calcule BC.\n3. sin(A) = 0,6 → Quel est l'angle A ?`, correction: `1. sin(A) = opposé/hyp = BC/AC... d'abord BC : BC²=AC²−AB²=100−36=64 → BC=8\n   sin(A) = BC/AC = 8/10 = 0,8\n2. BC = AC × sin(A) = 12 × sin(35°) ≈ 12 × 0,574 ≈ 6,88\n3. A = arcsin(0,6) ≈ 36,9°` },
+      { title: 'Systèmes d\'équations', enonce: `Résous les systèmes :\n1. x + y = 8  et  x − y = 2\n2. 2x + y = 11  et  x − y = 1`, correction: `1. Addition : 2x = 10 → x = 5 → y = 3\n   Vérif : 5+3=8 ✓ et 5−3=2 ✓\n2. Addition : 3x = 12 → x = 4 → y = 3\n   Vérif : 8+3=11 ✓ et 4−3=1 ✓` }
+    ],
+    'Anglais': [
+      { title: 'Past Perfect', enonce: `Mets au Past Perfect :\n1. When I arrived, she (already/leave).\n2. He was tired because he (not/sleep).\n3. They (finish) the work before the boss came.\n4. I knew her because we (meet) before.`, correction: `1. she had already left.\n2. he hadn't slept.\n3. They had finished the work.\n4. we had met before.` },
+      { title: 'If clauses type 3', enonce: `Complète avec le type 3 :\n1. If I (study) harder, I (pass) the exam.\n2. If she (call), I (answer).\n3. If they (leave) earlier, they (not/miss) the train.`, correction: `1. If I had studied harder, I would have passed the exam.\n2. If she had called, I would have answered.\n3. If they had left earlier, they wouldn't have missed the train.` }
+    ],
+    'Français': [
+      { title: 'Propositions subordonnées', enonce: `Identifie le type de proposition subordonnée :\n1. "Le livre que je lis est passionnant."\n2. "Je pense qu'il viendra demain."\n3. "Il est resté parce qu'il pleuvait."\n4. "Le film dont tu parles est excellent."`, correction: `1. "que je lis" → PSR (relative)\n2. "qu'il viendra" → PS conjonctive complétive\n3. "parce qu'il pleuvait" → PS circonstancielle de cause\n4. "dont tu parles" → PSR (relative, dont = de ce film)` },
+      { title: 'Style et registres', enonce: `Identifie le registre (lyrique, épique, comique) :\n1. "Ô ma bien-aimée ! Mon cœur pleure ton absence."\n2. "Le héros frappa mille ennemis d'un seul coup."\n3. "Il glissa sur la pelure de banane et s'étala de tout son long."`, correction: `1. Registre lyrique (pronom "je/moi", apostrophe "Ô", émotions)\n2. Registre épique (hyperbole, exploit héroïque, grandeur)\n3. Registre comique (situation burlesque, chute physique)` }
+    ]
+  },
+  '2nde': {
+    'Maths': [
+      { title: 'Vecteurs', enonce: `A(1;2), B(4;6), C(3;1), D(6;5)\n1. Calcule les coordonnées de AB.\n2. Calcule les coordonnées de CD.\n3. ABDC est-il un parallélogramme ?`, correction: `1. AB = (4−1 ; 6−2) = (3 ; 4)\n2. CD = (6−3 ; 5−1) = (3 ; 4)\n3. AB = CD → oui, ABDC est un parallélogramme.` },
+      { title: 'Inéquations', enonce: `Résous et donne l'intervalle solution :\n1. 3x − 6 > 0\n2. −2x + 4 ≥ 10\n3. 2x + 1 < 7`, correction: `1. 3x > 6 → x > 2 → ]2 ; +∞[\n2. −2x ≥ 6 → x ≤ −3 (signe retourné !) → ]−∞ ; −3]\n3. 2x < 6 → x < 3 → ]−∞ ; 3[` }
+    ],
+    'Anglais': [
+      { title: 'If clauses type 1 & 2', enonce: `Complète :\n1. Type 1 : If it (rain), I (take) an umbrella.\n2. Type 2 : If I (be) you, I (apologize).\n3. Type 1 : If she (study), she (pass).\n4. Type 2 : If he (have) money, he (buy) a car.`, correction: `1. If it rains, I will take an umbrella.\n2. If I were you, I would apologize. (were, jamais was !)\n3. If she studies, she will pass.\n4. If he had money, he would buy a car.` }
+    ],
+    'Français': [
+      { title: 'Humanisme et Classicisme', enonce: `Réponds aux questions :\n1. Cite deux auteurs humanistes et une devise associée.\n2. Qu'est-ce que la "règle des 3 unités" au théâtre classique ?\n3. Quel est l'idéal du Classicisme en deux mots ?`, correction: `1. Rabelais ("Fais ce que voudras") / Montaigne ("Que sais-je ?")\n2. Unité de lieu + de temps (24h) + d'action.\n3. "Plaire et instruire"` },
+      { title: 'Argumentation', enonce: `Lis cet argument et réponds :\n"Le sport améliore la santé. En effet, une étude montre que 30 min/jour réduisent les risques cardiaques de 30%."\n\n1. Quelle est la thèse ?\n2. Quel est l'argument ?\n3. Quel est l'exemple/la preuve ?\n4. Quel connecteur est utilisé ?`, correction: `1. Thèse : "Le sport améliore la santé"\n2. Argument : réduit les risques de maladies\n3. Preuve : étude, 30 min/jour = −30% risques cardiaques\n4. Connecteur : "En effet" (introduit la cause/explication)` }
+    ]
+  }
+};
+
+function showLevel(level, btn) {
+  document.querySelectorAll('.ltab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const data = exercices[level];
+  let html = '';
+  Object.entries(data).forEach(([subject, exos]) => {
+    html += `<div class="subject-section"><div class="subject-title">📘 ${subject}</div>`;
+    exos.forEach((exo, i) => {
+      const id = level + '_' + subject + '_' + i;
+      html += `<div class="exo-block">
+        <div class="exo-block-title">${exo.title}</div>
+        <div class="exo-enonce">${exo.enonce}</div>
+        <button class="show-corr-btn" onclick="toggleCorr('${id}',this)">Voir la correction 👁</button>
+        <div class="correction" id="${id}">${exo.correction}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('exo-content').innerHTML = html;
+}
+
+function toggleCorr(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('visible');
+  btn.textContent = el.classList.contains('visible') ? 'Masquer ✕' : 'Voir la correction 👁';
+}
+
+showLevel('5eme', document.querySelector('.ltab'));
+</script>
+</body>
+</html>

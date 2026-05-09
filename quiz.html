@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Quiz — Level Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=4">
+  <style>
+    .quiz-page { max-width:700px; margin:0 auto; padding-top:6rem; }
+    .level-tabs { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .ltab { padding:0.5rem 1.4rem; border-radius:10px; border:1px solid var(--border); background:var(--card); color:var(--muted); cursor:pointer; font-size:0.85rem; font-family:inherit; font-weight:600; transition:all 0.2s; }
+    .ltab.active { background:var(--accent); border-color:var(--accent); color:white; }
+    .quiz-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.5rem; }
+    .quiz-progress-text { color:var(--muted); font-size:0.82rem; }
+    .score-badge { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; padding:0.35rem 1rem; border-radius:20px; font-size:0.8rem; font-weight:700; }
+    .q-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2rem; }
+    .q-subject-tag { font-size:0.72rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent2); margin-bottom:0.8rem; }
+    .q-text { font-size:1rem; font-weight:600; margin-bottom:1.5rem; line-height:1.6; }
+    .q-opts { display:flex; flex-direction:column; gap:0.6rem; }
+    .q-opt { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:0.7rem 1.2rem; cursor:pointer; font-size:0.88rem; font-family:inherit; color:var(--text); transition:all 0.2s; text-align:left; }
+    .q-opt:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); transform:translateX(4px); }
+    .q-opt.correct { border-color:#10b981; background:rgba(16,185,129,0.12); color:#10b981; }
+    .q-opt.wrong { border-color:#ef4444; background:rgba(239,68,68,0.1); color:#ef4444; }
+    .q-feedback { margin-top:1rem; font-size:0.85rem; min-height:1.2rem; }
+    .q-next { display:none; margin-top:1.2rem; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; border:none; padding:0.6rem 1.8rem; border-radius:10px; cursor:pointer; font-size:0.88rem; font-weight:700; font-family:inherit; transition:all 0.2s; }
+    .q-next:hover { opacity:0.85; transform:translateY(-2px); }
+    .result-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2.5rem; text-align:center; }
+    .result-emoji { font-size:4rem; margin-bottom:1rem; }
+    .result-title { font-family:'Orbitron',monospace; font-size:1.3rem; margin-bottom:0.5rem; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .result-score { font-size:2.5rem; font-weight:900; color:var(--accent2); margin:1rem 0; }
+    .result-msg { color:var(--muted); font-size:0.88rem; margin-bottom:1.5rem; }
+    .restart-btn { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:white; border:none; padding:0.7rem 2rem; border-radius:12px; cursor:pointer; font-size:0.9rem; font-weight:700; font-family:inherit; }
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <a class="nav-logo" href="index.html">LEVEL·UP</a>
+  <div class="nav-links">
+    <a class="nav-btn" href="index.html#niveaux">📚 Leçons</a>
+    <a class="nav-btn" href="exercices.html">✏️ Exercices</a>
+    <a class="nav-btn active-page" href="quiz.html">⚡ Quiz</a>
+  </div>
+  <div class="nav-badge">🏆 MAJOR DE 6ÈME</div>
+</nav>
+
+<section class="quiz-page">
+  <div class="section-header">
+    <div class="section-tag">⚡ Quiz</div>
+    <h2 class="section-title">Teste tes connaissances</h2>
+  </div>
+  <div class="level-tabs">
+    <button class="ltab active" onclick="startQuiz('5eme',this)">5ème</button>
+    <button class="ltab" onclick="startQuiz('4eme',this)">4ème</button>
+    <button class="ltab" onclick="startQuiz('3eme',this)">3ème</button>
+    <button class="ltab" onclick="startQuiz('2nde',this)">2nde</button>
+  </div>
+  <div id="quiz-area"></div>
+</section>
+
+<script>
+const canvas=document.getElementById('bg-canvas');const ctx=canvas.getContext('2d');let stars=[];
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight;stars=[];for(let i=0;i<120;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5,a:Math.random(),speed:0.003+Math.random()*0.005,drift:(Math.random()-.5)*.2});}
+function drawStars(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.a+=s.speed;s.x+=s.drift;if(s.x<0)s.x=canvas.width;if(s.x>canvas.width)s.x=0;const al=(Math.sin(s.a)*.5+.5)*.6+.1;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(180,160,255,${al})`;ctx.fill();});requestAnimationFrame(drawStars);}
+window.addEventListener('resize',resize);resize();drawStars();
+
+const allQuiz = {
+  '5eme': [
+    {s:'Maths',q:'(−5) + (−3) = ?',opts:['−8','+8','−2','+2'],c:0},
+    {s:'Maths',q:'(−4) × (−3) = ?',opts:['−12','+12','+7','−7'],c:1},
+    {s:'Maths',q:'1/2 + 1/4 = ?',opts:['2/6','3/4','1/3','2/8'],c:1},
+    {s:'Maths',q:'2 kg coûtent 6€. 5 kg coûtent ?',opts:['12€','15€','10€','18€'],c:1},
+    {s:'Maths',q:'Somme des angles d\'un triangle = ?',opts:['90°','180°','360°','270°'],c:1},
+    {s:'Anglais',q:'"She ___ to school every day."',opts:['go','goes','is going','went'],c:1},
+    {s:'Anglais',q:'"run" au Present Continuous = ?',opts:['runing','running','runs','ran'],c:1},
+    {s:'Anglais',q:'Past simple de "go" = ?',opts:['goed','gone','goes','went'],c:3},
+    {s:'Anglais',q:'"tall" au superlatif = ?',opts:['most tall','tallest','taller','more tall'],c:1},
+    {s:'Anglais',q:'"___ Monday, I go to school."',opts:['in','at','on','to'],c:2},
+    {s:'Français',q:'Imparfait de "être" (il) = ?',opts:['était','est','fût','serait'],c:0},
+    {s:'Français',q:'"Il court comme le vent" = ?',opts:['Métaphore','Comparaison','Hyperbole','Personnification'],c:1},
+    {s:'Français',q:'"C\'est un monstre de travail" = ?',opts:['Comparaison','Hyperbole','Métaphore','Antithèse'],c:2},
+    {s:'Français',q:'"Le soleil souriait" = ?',opts:['Hyperbole','Comparaison','Personnification','Métaphore'],c:2},
+    {s:'Français',q:'"Il lit un livre." → "un livre" est ?',opts:['COI','Sujet','COD','Attribut'],c:2},
+    {s:'Français',q:'COD répond à quelle question ?',opts:['À qui ?','De quoi ?','Qui/Quoi (sans prép.)','Où ?'],c:2}
+  ],
+  '4eme': [
+    {s:'Maths',q:'(a+b)² = ?',opts:['a²+b²','a²+2ab+b²','a²−2ab+b²','2a+2b'],c:1},
+    {s:'Maths',q:'(x+3)(x−3) = ?',opts:['x²+9','x²−9','x²+6x−9','x²−6x+9'],c:1},
+    {s:'Maths',q:'2x+4 = 0 → x = ?',opts:['2','−2','4','−4'],c:1},
+    {s:'Maths',q:'Triangle rectangle : côtés 6 et 8. Hypoténuse = ?',opts:['10','12','14','100'],c:0},
+    {s:'Maths',q:'Dé à 6 faces. P(pair) = ?',opts:['1/6','2/6','3/6','4/6'],c:2},
+    {s:'Anglais',q:'Quelle phrase est au Present Perfect ?',opts:['I saw the film.','I have seen the film.','I see the film.','I am seeing the film.'],c:1},
+    {s:'Anglais',q:'"Yesterday, I ___ football."',opts:['have played','played','play','am playing'],c:1},
+    {s:'Anglais',q:'Type 1 : If she studies, she ___ pass.',opts:['would','will','might','should'],c:1},
+    {s:'Anglais',q:'Type 2 : If I ___ you, I would apologize.',opts:['am','was','were','be'],c:2},
+    {s:'Anglais',q:'Passif de "They build houses" ?',opts:['Houses are build.','Houses are built.','Houses were built.','Houses build.'],c:1},
+    {s:'Français',q:'"Il faut que tu ___." (venir)',opts:['viennes','viens','venais','viendras'],c:0},
+    {s:'Français',q:'Conditionnel de "être" (il) = ?',opts:['était','sera','serait','soit'],c:2},
+    {s:'Français',q:'Auteur du "Père Goriot" = ?',opts:['Zola','Flaubert','Balzac','Hugo'],c:2},
+    {s:'Français',q:'La thèse dans une argumentation = ?',opts:['L\'exemple','Le plan','L\'idée principale','La conclusion'],c:2},
+    {s:'Français',q:'Connecteur de conséquence = ?',opts:['car','cependant','donc','de plus'],c:2},
+    {s:'Français',q:'Alexandrin = ? syllabes',opts:['8','10','12','14'],c:2}
+  ],
+  '3eme': [
+    {s:'Maths',q:'f(x)=3x−1. f(2) = ?',opts:['5','7','1','−1'],c:0},
+    {s:'Maths',q:'f(x)=2x+4. Antécédent de 10 = ?',opts:['3','24','7','10'],c:0},
+    {s:'Maths',q:'sin(A) = ?',opts:['adj/hyp','opp/hyp','opp/adj','hyp/opp'],c:1},
+    {s:'Maths',q:'tan(A) = ?',opts:['opp/hyp','adj/hyp','hyp/opp','opp/adj'],c:3},
+    {s:'Maths',q:'x+y=7 et x−y=3 → x = ?',opts:['2','5','7','3'],c:1},
+    {s:'Anglais',q:'"When I arrived, she ___ already left."',opts:['has','have','had','was'],c:2},
+    {s:'Anglais',q:'Futur passif de "build" = ?',opts:['will build','is built','will be built','has been built'],c:2},
+    {s:'Anglais',q:'"Do you speak French?" → He asked ___ I spoke French.',opts:['that','if','whether','what'],c:1},
+    {s:'Anglais',q:'Modal de déduction certaine = ?',opts:['might','must','could','can\'t'],c:1},
+    {s:'Anglais',q:'If clause type 3 : structure ?',opts:['If+présent,will','If+passé,would','If+PP,would have+PP','If+PP,had+PP'],c:2},
+    {s:'Français',q:'Pacte autobiographique = ?',opts:['Auteur=éditeur','Auteur=narrateur=personnage','Narrateur=personnage','Auteur=lecteur'],c:1},
+    {s:'Français',q:'Auteur du poème "Liberté" (1942) = ?',opts:['Aragon','Prévert','Éluard','Césaire'],c:2},
+    {s:'Français',q:'Lecture linéaire : elle suit ?',opts:['Un plan thématique','L\'ordre du texte','L\'ordre chronologique','Un plan dialectique'],c:1},
+    {s:'Français',q:'Anaphore (cohésion) = ?',opts:['Annonce ce qui suit','Reprend ce qui précède','Figure de style','Connecteur'],c:1},
+    {s:'Français',q:'Nature d\'un mot = ?',opts:['Sa fonction','Sa catégorie grammaticale','Son sens','Son étymologie'],c:1},
+    {s:'Français',q:'Brevet français : points rédaction = ?',opts:['10','12','20','24'],c:3}
+  ],
+  '2nde': [
+    {s:'Maths',q:'A(1;2) B(4;6) → AB = ?',opts:['(3;4)','(5;8)','(3;8)','(4;3)'],c:0},
+    {s:'Maths',q:'3x−6 > 0 → ?',opts:['x < 2','x > 2','x = 2','x ≤ 2'],c:1},
+    {s:'Maths',q:'−2x + 4 ≥ 10 → ?',opts:['x ≥ −3','x ≤ −3','x ≥ 3','x ≤ 3'],c:1},
+    {s:'Anglais',q:'Type 1 : If it rains, I ___ stay home.',opts:['would','will','might','should'],c:1},
+    {s:'Anglais',q:'Type 2 : If I ___ you, I would help.',opts:['am','was','were','be'],c:2},
+    {s:'Anglais',q:'"Réchauffement climatique" en anglais ?',opts:['global cooling','global warming','air pollution','ozone hole'],c:1},
+    {s:'Anglais',q:'"Cyberharcèlement" en anglais ?',opts:['fake news','cyberbullying','digital divide','screen time'],c:1},
+    {s:'Anglais',q:'Must vs Should : différence ?',opts:['Aucune','Must=obligation, Should=conseil','Should=obligation','Must=conseil'],c:1},
+    {s:'Français',q:'Humanisme = quel siècle ?',opts:['XIVe','XVe','XVIe','XVIIe'],c:2},
+    {s:'Français',q:'"Que sais-je ?" est la devise de ?',opts:['Rabelais','Montaigne','Hugo','Molière'],c:1},
+    {s:'Français',q:'Classicisme : idéal en 2 mots ?',opts:['Liberté créatrice','Plaire et instruire','Émotions pures','Nature sublime'],c:1},
+    {s:'Français',q:'Héros romantique est souvent ?',opts:['Heureux et intégré','Solitaire et incompris','Noble et sage','Comique'],c:1},
+    {s:'Français',q:'Intro d\'une dissertation contient ?',opts:['Seulement le titre','Accroche+définition+problématique+plan','Un résumé','Des citations'],c:1},
+    {s:'Français',q:'Registre lyrique : indice clé ?',opts:['Hyperbole','Pronom "nous"','Pronom "je" + émotions','Temps passé'],c:2},
+    {s:'Français',q:'Registre épique : figure de style clé ?',opts:['Comparaison','Métaphore','Hyperbole','Personnification'],c:2},
+    {s:'Français',q:'"dont" dans une PSR = ?',opts:['à qui/quoi','qui/que','de qui/quoi','où'],c:2}
+  ]
+};
+
+let state = { level:'5eme', questions:[], idx:0, score:0, answered:false };
+
+function startQuiz(level, btn) {
+  document.querySelectorAll('.ltab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  state.level = level;
+  state.questions = [...allQuiz[level]].sort(()=>Math.random()-0.5);
+  state.idx = 0;
+  state.score = 0;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.questions[state.idx];
+  const total = state.questions.length;
+  const optsHtml = q.opts.map((opt,i) =>
+    `<button class="q-opt" onclick="answer(this,${i === q.c})">${opt}</button>`
+  ).join('');
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="quiz-header">
+      <div class="quiz-progress-text">Question ${state.idx+1} / ${total}</div>
+      <div class="score-badge">Score : ${state.score} / ${total}</div>
+    </div>
+    <div class="prog-bar" style="margin-bottom:1.5rem"><div class="prog-fill" style="width:${(state.idx/total)*100}%"></div></div>
+    <div class="q-card">
+      <div class="q-subject-tag">📘 ${q.s}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-opts">${optsHtml}</div>
+      <div class="q-feedback" id="q-feedback"></div>
+      <button class="q-next" id="q-next" onclick="nextQ()">${state.idx === total-1 ? 'Voir les résultats 🏆' : 'Question suivante →'}</button>
+    </div>`;
+}
+
+function answer(btn, correct) {
+  if (document.getElementById('q-next').style.display === 'inline-block') return;
+  document.querySelectorAll('.q-opt').forEach(b=>b.disabled=true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) {
+    document.querySelectorAll('.q-opt').forEach(b=>{
+      if(b.onclick.toString().includes('true')) b.classList.add('correct');
+    });
+    document.getElementById('q-feedback').innerHTML = '<span style="color:#ef4444">✗ Raté — la bonne réponse est en vert.</span>';
+  } else {
+    state.score++;
+    document.getElementById('q-feedback').innerHTML = '<span style="color:#10b981">✓ Bravo !</span>';
+  }
+  document.getElementById('q-next').style.display = 'inline-block';
+}
+
+function nextQ() {
+  state.idx++;
+  if (state.idx >= state.questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  const total = state.questions.length;
+  const pct = Math.round((state.score/total)*100);
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '💪' : pct >= 40 ? '📚' : '😅';
+  const msg = pct >= 80 ? 'Exceptionnel ! T\'es vraiment un major !' : pct >= 60 ? 'Bien joué, continue comme ça !' : pct >= 40 ? 'Pas mal, mais révise encore un peu.' : 'Retourne voir les leçons et réessaie !';
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="result-card">
+      <div class="result-emoji">${emoji}</div>
+      <div class="result-title">Quiz terminé !</div>
+      <div class="result-score">${state.score} / ${total}</div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startQuiz('${state.level}', document.querySelector('.ltab.active'))">🔄 Recommencer</button>
+    </div>`;
+}
+
+startQuiz('5eme', document.querySelector('.ltab'));
+</script>
+</body>
+</html>
